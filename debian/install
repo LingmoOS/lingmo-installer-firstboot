@@ -1,0 +1,2 @@
+oobe.desktop /etc/xdg/autostart/
+firstboot.service /lib/systemd/system/
