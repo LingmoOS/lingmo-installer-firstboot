@@ -1,6 +1,0 @@
-usr/bin/lingmo-oobe
-usr/lib/lingmo-oobe/oobe.sh
-etc/xdg/autostart/oobe.desktop
-lib/systemd/system/firstboot.service
-usr/share/xsessions/lingmo-oobe.desktop
-usr/share/wayland-sessions/lingmo-oobe.desktop
