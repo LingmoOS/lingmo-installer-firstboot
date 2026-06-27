@@ -6,7 +6,7 @@ Build-Depends:
  cmake,
  debhelper (>= 11),
  qt6-base-dev (>= 6.0),
- qt6-linguist-tools (>= 6.0)
+ linguist-qt6 (>= 6.0)
 Standards-Version: 4.5.0
 Homepage: https://lingmo.org
 
