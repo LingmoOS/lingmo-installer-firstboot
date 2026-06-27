@@ -37,3 +37,7 @@ target_link_libraries(lingmo-oobe
 install(TARGETS lingmo-oobe RUNTIME DESTINATION bin)
 install(FILES oobe.desktop DESTINATION /etc/xdg/autostart)
 install(FILES firstboot.service DESTINATION /lib/systemd/system)
+install(PROGRAMS oobe.sh DESTINATION /usr/lib/lingmo-oobe)
+install(FILES xsessions/lingmo-oobe.desktop DESTINATION /usr/share/xsessions)
+install(FILES wayland-sessions/lingmo-oobe.desktop DESTINATION /usr/share/wayland-sessions)
+install(FILES lingmo-oobe.rules DESTINATION /etc/polkit-1/rules.d RENAME 10-lingmo-oobe.rules)

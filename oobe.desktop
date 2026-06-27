@@ -2,7 +2,7 @@
 Type=Application
 Name=Lingmo OS First Boot Setup
 Comment=First boot configuration wizard
-Exec=/usr/lib/lingmo-oobe/oobe.sh
+Exec=/usr/lib/lingmo-oobe/oobe.sh run
 Terminal=false
 Categories=System;
 X-GNOME-Autostart-enabled=true

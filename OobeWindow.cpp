@@ -13,7 +13,7 @@
 #include <unistd.h>
 #endif
 
-static const int CARD_MAX_W = 820;
+static const int CARD_MAX_W = 1640;
 static const int PAGE_PADDING = 40;
 static const char* OOBE_FLAG = "/etc/.firstboot-complete";
 
@@ -209,35 +209,83 @@ QWidget* OobeWindow::createWelcomePage()
 {
     QWidget *page = new QWidget;
     page->setObjectName("pageWelcome");
-    QVBoxLayout *l = new QVBoxLayout(page);
-    l->setContentsMargins(PAGE_PADDING, 30, PAGE_PADDING, 10);
-    l->setSpacing(20);
 
-    QLabel *icon = new QLabel;
+    QHBoxLayout *hl = new QHBoxLayout(page);
+    hl->setContentsMargins(0, 0, 0, 0);
+    hl->setSpacing(0);
+
+    // Left panel: logo / illustration
+    QWidget *leftPanel = new QWidget;
+    leftPanel->setObjectName("welcomeLeft");
+    leftPanel->setFixedWidth(480);
+    leftPanel->setStyleSheet(
+        "#welcomeLeft {"
+        "  background: qlineargradient(x1:0, y1:0, x2:1, y2:1,"
+        "    stop:0 #0058a9, stop:1 #0072d2);"
+        "  border-top-left-radius: 14px;"
+        "  border-bottom-left-radius: 14px;"
+        "}"
+    );
+    QVBoxLayout *ll = new QVBoxLayout(leftPanel);
+    ll->setAlignment(Qt::AlignCenter);
+
+    QLabel *icon = new QLabel(leftPanel);
     QPixmap ipix("/usr/share/lingmo/distribution/distribution_logo.svg");
     if (!ipix.isNull())
-        icon->setPixmap(ipix.scaled(96, 96, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        icon->setPixmap(ipix.scaled(160, 160, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     icon->setAlignment(Qt::AlignCenter);
-    l->addWidget(icon);
+    ll->addWidget(icon);
+
+    QLabel *osName = new QLabel("Lingmo OS", leftPanel);
+    osName->setAlignment(Qt::AlignCenter);
+    QFont nf = osName->font();
+    nf.setPointSize(nf.pointSize() + 4);
+    nf.setBold(true);
+    osName->setFont(nf);
+    osName->setStyleSheet("color: white; background: transparent;");
+    ll->addWidget(osName);
+
+    QLabel *versionLabel = new QLabel("5.0", leftPanel);
+    versionLabel->setAlignment(Qt::AlignCenter);
+    QFont vf = versionLabel->font();
+    vf.setPointSize(vf.pointSize());
+    versionLabel->setFont(vf);
+    versionLabel->setStyleSheet("color: rgba(255,255,255,0.7); background: transparent;");
+    ll->addWidget(versionLabel);
+
+    // Right panel: welcome text
+    QWidget *rightPanel = new QWidget;
+    rightPanel->setObjectName("welcomeRight");
+    rightPanel->setStyleSheet("#welcomeRight { background: transparent; }");
+    QVBoxLayout *rl = new QVBoxLayout(rightPanel);
+    rl->setContentsMargins(50, 40, 50, 40);
+    rl->setSpacing(16);
+
+    rl->addStretch();
 
     QLabel *welcome = new QLabel(tr("Welcome to Lingmo OS"));
     welcome->setObjectName("welcomeTitle");
     QFont wf = welcome->font();
-    wf.setPointSize(wf.pointSize() + 8);
+    wf.setPointSize(wf.pointSize() + 10);
     wf.setBold(true);
     welcome->setFont(wf);
-    welcome->setAlignment(Qt::AlignCenter);
-    l->addWidget(welcome);
+    welcome->setStyleSheet("color: #1a1a1a; background: transparent;");
+    rl->addWidget(welcome);
 
     QLabel *desc = new QLabel(tr("Let's set up your system.\nClick \"Next\" to continue."));
     desc->setObjectName("welcomeDesc");
-    desc->setAlignment(Qt::AlignCenter);
     QFont df = desc->font();
-    df.setPointSize(df.pointSize() + 1);
+    df.setPointSize(df.pointSize() + 2);
     desc->setFont(df);
-    l->addWidget(desc);
+    desc->setStyleSheet("color: #666; background: transparent;");
+    desc->setWordWrap(true);
+    rl->addWidget(desc);
 
-    l->addStretch();
+    rl->addStretch();
+
+    hl->addWidget(leftPanel);
+    hl->addWidget(rightPanel, 1);
+
     return page;
 }
 
@@ -545,8 +593,9 @@ void OobeWindow::applySettings()
     cmds << QString("echo '%1:%2' | chpasswd").arg(m_username, m_password);
     cmds << QString("hostnamectl set-hostname %1").arg(m_hostname);
 
-    // SDDM autologin
+    // SDDM autologin – replace first-boot config and set real DE session
     cmds << QString("mkdir -p /etc/sddm.conf.d");
+    cmds << QString("rm -f /etc/sddm.conf.d/lingmo-firstboot.conf");
     cmds << QString("echo '[Autologin]' > /etc/sddm.conf.d/lingmo-autologin.conf");
     cmds << QString("echo 'User=%1' >> /etc/sddm.conf.d/lingmo-autologin.conf").arg(m_username);
     cmds << QString("echo 'Session=lingmo.desktop' >> /etc/sddm.conf.d/lingmo-autologin.conf");

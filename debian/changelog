@@ -1,3 +1,9 @@
+lingmo-oobe (1.5.0.lingmo.1) unstable; urgency=medium
+
+  * N
+
+ -- Lingmo OS Team <team@lingmo.org>  Sat, 27 Jun 2026 18:30:00 +0800
+
 lingmo-oobe (1.0.0.lingmo.1) unstable; urgency=medium
 
   * Initial release for Lingmo OS.
