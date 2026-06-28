@@ -99,10 +99,12 @@ QWidget* OobeWindow::createCard()
 {
     QSize screenSize = qApp->primaryScreen()->availableGeometry().size();
     int cardW = qMin(static_cast<int>(screenSize.width() * CARD_RATIO), screenSize.width() - 100);
+    int cardH = qMin(cardW * 10 / 16, screenSize.height() - 80);
 
     m_cardWidget = new QWidget(this);
     m_cardWidget->setObjectName("oobeCard");
-    m_cardWidget->setFixedWidth(cardW);
+    m_cardWidget->setFixedSize(cardW, cardH);
+    m_cardWidget->move((screenSize.width() - cardW) / 2, (screenSize.height() - cardH) / 2);
 
     QVBoxLayout *cardLayout = new QVBoxLayout(m_cardWidget);
     cardLayout->setContentsMargins(0, 0, 0, 0);
