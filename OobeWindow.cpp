@@ -524,7 +524,7 @@ QWidget* OobeWindow::createFinishedPage()
     rebootBtn->setCursor(Qt::PointingHandCursor);
     l->addWidget(rebootBtn, 0, Qt::AlignCenter);
 
-    connect(rebootBtn, &QPushButton::clicked, this, [this]() {
+    connect(rebootBtn, &QPushButton::clicked, this, [this, rebootBtn]() {
         rebootBtn->setEnabled(false);
         rebootBtn->setText(tr("Rebooting..."));
         QCoreApplication::processEvents();
