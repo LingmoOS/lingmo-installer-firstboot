@@ -13,7 +13,7 @@
 #include <unistd.h>
 #endif
 
-static const double CARD_RATIO = 0.72;
+static const double CARD_RATIO = 0.60;
 static const int PAGE_PADDING = 40;
 static const char* OOBE_FLAG = "/etc/.firstboot-complete";
 
@@ -99,12 +99,10 @@ QWidget* OobeWindow::createCard()
 {
     QSize screenSize = qApp->primaryScreen()->availableGeometry().size();
     int cardW = qMin(static_cast<int>(screenSize.width() * CARD_RATIO), screenSize.width() - 100);
-    int cardH = qMin(cardW * 10 / 16, screenSize.height() - 80);
 
     m_cardWidget = new QWidget(this);
     m_cardWidget->setObjectName("oobeCard");
-    m_cardWidget->setFixedSize(cardW, cardH);
-    m_cardWidget->move((screenSize.width() - cardW) / 2, (screenSize.height() - cardH) / 2);
+    m_cardWidget->setFixedWidth(cardW);
 
     QVBoxLayout *cardLayout = new QVBoxLayout(m_cardWidget);
     cardLayout->setContentsMargins(0, 0, 0, 0);
