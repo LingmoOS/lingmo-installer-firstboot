@@ -13,7 +13,7 @@
 #include <unistd.h>
 #endif
 
-static const int CARD_MAX_W = 1640;
+static const double CARD_RATIO = 0.72;
 static const int PAGE_PADDING = 40;
 static const char* OOBE_FLAG = "/etc/.firstboot-complete";
 
@@ -97,9 +97,12 @@ void OobeWindow::setupBackground()
 
 QWidget* OobeWindow::createCard()
 {
+    QSize screenSize = qApp->primaryScreen()->availableGeometry().size();
+    int cardW = qMin(static_cast<int>(screenSize.width() * CARD_RATIO), screenSize.width() - 100);
+
     m_cardWidget = new QWidget(this);
     m_cardWidget->setObjectName("oobeCard");
-    m_cardWidget->setFixedWidth(CARD_MAX_W);
+    m_cardWidget->setFixedWidth(cardW);
 
     QVBoxLayout *cardLayout = new QVBoxLayout(m_cardWidget);
     cardLayout->setContentsMargins(0, 0, 0, 0);
@@ -515,9 +518,38 @@ QWidget* OobeWindow::createFinishedPage()
 
     l->addStretch();
 
+    QPushButton *rebootBtn = new QPushButton(tr("Reboot Now"));
+    rebootBtn->setObjectName("rebootBtn");
+    rebootBtn->setFixedWidth(260);
+    rebootBtn->setCursor(Qt::PointingHandCursor);
+    l->addWidget(rebootBtn, 0, Qt::AlignCenter);
+
+    connect(rebootBtn, &QPushButton::clicked, this, [this]() {
+        rebootBtn->setEnabled(false);
+        rebootBtn->setText(tr("Rebooting..."));
+        QCoreApplication::processEvents();
+#ifdef Q_OS_UNIX
+        if (getuid() != 0)
+            QProcess::startDetached("pkexec", { "systemctl", "reboot" });
+        else
+            QProcess::startDetached("systemctl", { "reboot" });
+#endif
+    });
+
     page->setStyleSheet(
         "#pageFinished { background: transparent; }"
         "#finishDesc { color: #444; }"
+        "#rebootBtn {"
+        "  background: #0058a9;"
+        "  border: none;"
+        "  border-radius: 8px;"
+        "  color: white;"
+        "  font-size: 15px;"
+        "  font-weight: bold;"
+        "  padding: 12px 0;"
+        "}"
+        "#rebootBtn:hover { background: #0072d2; }"
+        "#rebootBtn:disabled { background: #aaa; }"
     );
 
     return page;
@@ -600,11 +632,17 @@ void OobeWindow::applySettings()
     cmds << QString("echo 'User=%1' >> /etc/sddm.conf.d/lingmo-autologin.conf").arg(m_username);
     cmds << QString("echo 'Session=lingmo.desktop' >> /etc/sddm.conf.d/lingmo-autologin.conf");
 
+    // Remove OOBE session files so SDDM won't try to use them on next login
+    // cmds << "rm -f /usr/share/xsessions/lingmo-oobe.desktop /usr/share/wayland-sessions/lingmo-oobe.desktop /etc/xdg/autostart/oobe.desktop /lib/systemd/system/firstboot.service";
+
     // Remove default live user
     cmds << "userdel -r liveuser 2>/dev/null; true";
 
     // Mark OOBE complete
     cmds << QString("touch %1").arg(OOBE_FLAG);
+
+    // Self-remove OOBE package to reduce footprint
+    cmds << "apt-get remove -y lingmo-oobe 2>/dev/null || dpkg --purge lingmo-oobe 2>/dev/null || true";
 
     QString executor;
 #ifdef Q_OS_UNIX

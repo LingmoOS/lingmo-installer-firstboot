@@ -133,5 +133,13 @@ After reboot, log in with &quot;%1&quot;.</source>
         <source>Reboot</source>
         <translation>重启</translation>
     </message>
+    <message>
+        <source>Reboot Now</source>
+        <translation>立即重启</translation>
+    </message>
+    <message>
+        <source>Rebooting...</source>
+        <translation>正在重启...</translation>
+    </message>
 </context>
 </TS>
