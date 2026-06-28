@@ -30,7 +30,7 @@ endif()
 
 # Embed .qm if available
 if(EXISTS ${QM_FILE})
-    qt6_add_resources(lingmo-oobe "translations"
+    qt6_add_resources(lingmo-oobe "oobe_translations"
         PREFIX "/i18n"
         FILES ${QM_FILE}
     )
