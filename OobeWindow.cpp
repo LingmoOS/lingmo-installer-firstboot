@@ -23,7 +23,7 @@ OobeWindow::OobeWindow(QWidget *parent)
     setObjectName("oobeWindow");
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 
-    QSize screenSize = qApp->primaryScreen()->availableGeometry().size();
+    QSize screenSize = qApp->primaryScreen()->geometry().size();
     setGeometry(0, 0, screenSize.width(), screenSize.height());
 
     setupBackground();
@@ -97,7 +97,7 @@ void OobeWindow::setupBackground()
 
 QWidget* OobeWindow::createCard()
 {
-    QSize screenSize = qApp->primaryScreen()->availableGeometry().size();
+    QSize screenSize = qApp->primaryScreen()->geometry().size();
     int cardW = qMin(static_cast<int>(screenSize.width() * CARD_RATIO), screenSize.width() - 100);
 
     m_cardWidget = new QWidget(this);
