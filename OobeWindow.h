@@ -21,6 +21,7 @@ private slots:
 
 private:
     void setupBackground();
+    void fadeToPage(int index);
     QWidget* createCard();
     QWidget* createWelcomePage();
     QWidget* createUserPage();

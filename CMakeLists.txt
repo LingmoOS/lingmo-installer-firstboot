@@ -5,38 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets LinguistTools)
 
-set(TS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/translations)
-set(QM_FILE ${TS_DIR}/lingmo-oobe_zh_CN.qm)
-
-# Try to compile .ts → .qm if lrelease is available
-find_program(LRELEASE
-    NAMES lrelease-qt6 lrelease
-    PATHS /usr/lib/qt6/bin /usr/lib/x86_64-linux-gnu/qt6/bin
+set(TS_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/lingmo-oobe_zh_CN.ts
 )
-if(LRELEASE AND EXISTS ${TS_DIR}/lingmo-oobe_zh_CN.ts)
-    execute_process(COMMAND ${LRELEASE} ${TS_DIR}/lingmo-oobe_zh_CN.ts
-        -qm ${QM_FILE}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        RESULT_VARIABLE LRELEASE_RESULT
-    )
-    if(LRELEASE_RESULT EQUAL 0)
-        message(STATUS "Compiled translations: lingmo-oobe_zh_CN.ts → .qm")
-    else()
-        message(WARNING "lrelease failed to compile .ts file")
-    endif()
-endif()
-
-# Embed .qm if available
-if(EXISTS ${QM_FILE})
-    qt6_add_resources(lingmo-oobe "oobe_translations"
-        PREFIX "/i18n"
-        FILES ${QM_FILE}
-    )
-else()
-    message(STATUS "No .qm file found -- building without translations")
-endif()
 
 add_executable(lingmo-oobe
     main.cpp
@@ -45,6 +18,11 @@ add_executable(lingmo-oobe
 
 target_link_libraries(lingmo-oobe
     Qt6::Widgets
+)
+
+qt6_add_translations(lingmo-oobe
+    TS_FILES ${TS_FILES}
+    RESOURCE_PREFIX "/i18n"
 )
 
 install(TARGETS lingmo-oobe RUNTIME DESTINATION bin)

@@ -4,7 +4,9 @@
 #include <QBoxLayout>
 #include <QFile>
 #include <QGraphicsBlurEffect>
+#include <QGraphicsOpacityEffect>
 #include <QPainter>
+#include <QPropertyAnimation>
 #include <QScreen>
 #include <QStyle>
 #include <QTimer>
@@ -41,6 +43,20 @@ OobeWindow::OobeWindow(QWidget *parent)
     root->addStretch();
 
     QMetaObject::invokeMethod(this, "showFullScreen", Qt::QueuedConnection);
+
+    // Entrance fade-in
+    auto *entranceEffect = new QGraphicsOpacityEffect(m_cardWidget);
+    m_cardWidget->setGraphicsEffect(entranceEffect);
+    entranceEffect->setOpacity(0.0);
+    auto *entranceAnim = new QPropertyAnimation(entranceEffect, "opacity", this);
+    entranceAnim->setDuration(400);
+    entranceAnim->setStartValue(0.0);
+    entranceAnim->setEndValue(1.0);
+    entranceAnim->setEasingCurve(QEasingCurve::OutCubic);
+    entranceAnim->start(QAbstractAnimation::DeleteWhenStopped);
+    connect(entranceAnim, &QPropertyAnimation::finished, this, [this]() {
+        m_cardWidget->setGraphicsEffect(nullptr);
+    });
 }
 
 void OobeWindow::setupBackground()
@@ -221,14 +237,7 @@ QWidget* OobeWindow::createWelcomePage()
     QWidget *leftPanel = new QWidget;
     leftPanel->setObjectName("welcomeLeft");
     leftPanel->setFixedWidth(480);
-    leftPanel->setStyleSheet(
-        "#welcomeLeft {"
-        "  background: qlineargradient(x1:0, y1:0, x2:1, y2:1,"
-        "    stop:0 #0058a9, stop:1 #0072d2);"
-        "  border-top-left-radius: 14px;"
-        "  border-bottom-left-radius: 14px;"
-        "}"
-    );
+
     QVBoxLayout *ll = new QVBoxLayout(leftPanel);
     ll->setAlignment(Qt::AlignCenter);
 
@@ -602,17 +611,49 @@ void OobeWindow::nextPage()
         return;
     }
 
-    m_stack->setCurrentIndex(idx + 1);
-    updateNavButtons();
+    fadeToPage(idx + 1);
 }
 
 void OobeWindow::backPage()
 {
     int idx = m_stack->currentIndex();
     if (idx > 0) {
-        m_stack->setCurrentIndex(idx - 1);
-        updateNavButtons();
+        fadeToPage(idx - 1);
     }
+}
+
+void OobeWindow::fadeToPage(int index)
+{
+    if (index == m_stack->currentIndex())
+        return;
+
+    auto *effect = new QGraphicsOpacityEffect(m_stack);
+    m_stack->setGraphicsEffect(effect);
+    effect->setOpacity(1.0);
+
+    auto *fadeOut = new QPropertyAnimation(effect, "opacity", this);
+    fadeOut->setDuration(150);
+    fadeOut->setStartValue(1.0);
+    fadeOut->setEndValue(0.0);
+
+    connect(fadeOut, &QPropertyAnimation::finished, this, [this, index, effect]() {
+        m_stack->setCurrentIndex(index);
+        effect->setOpacity(0.0);
+
+        auto *fadeIn = new QPropertyAnimation(effect, "opacity", this);
+        fadeIn->setDuration(150);
+        fadeIn->setStartValue(0.0);
+        fadeIn->setEndValue(1.0);
+
+        connect(fadeIn, &QPropertyAnimation::finished, this, [this]() {
+            m_stack->setGraphicsEffect(nullptr);
+            updateNavButtons();
+        });
+
+        fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
+    });
+
+    fadeOut->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void OobeWindow::applySettings()
