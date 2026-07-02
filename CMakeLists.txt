@@ -52,6 +52,9 @@ else()
 
     # Embed .qm if available
     if(EXISTS ${QM_FILE})
+        set_source_files_properties(${QM_FILE} PROPERTIES
+            QT_RESOURCE_ALIAS "lingmo-oobe_zh_CN.qm"
+        )
         qt6_add_resources(lingmo-oobe "oobe_translations"
             PREFIX "/i18n"
             FILES ${QM_FILE}
