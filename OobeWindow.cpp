@@ -131,7 +131,7 @@ QWidget* OobeWindow::createCard()
     hl->setContentsMargins(24, 18, 24, 10);
 
     QLabel *logo = new QLabel;
-    QPixmap lpix("/usr/share/lingmo/distribution/distribution_logo.svg");
+    QPixmap lpix(":/logo.png");
     if (!lpix.isNull())
         logo->setPixmap(lpix.scaled(28, 28, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     hl->addWidget(logo);
@@ -242,7 +242,7 @@ QWidget* OobeWindow::createWelcomePage()
     ll->setAlignment(Qt::AlignCenter);
 
     QLabel *icon = new QLabel(leftPanel);
-    QPixmap ipix("/usr/share/lingmo/distribution/distribution_logo.svg");
+    QPixmap ipix(":/logo.png");
     if (!ipix.isNull())
         icon->setPixmap(ipix.scaled(160, 160, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     icon->setAlignment(Qt::AlignCenter);
@@ -420,7 +420,7 @@ QWidget* OobeWindow::createInstallPage()
     l->setSpacing(24);
 
     QLabel *icon = new QLabel;
-    QPixmap ipix("/usr/share/lingmo/distribution/distribution_logo.svg");
+    QPixmap ipix(":/logo.png");
     if (!ipix.isNull())
         icon->setPixmap(ipix.scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     icon->setAlignment(Qt::AlignCenter);
@@ -501,7 +501,7 @@ QWidget* OobeWindow::createFinishedPage()
     l->setSpacing(20);
 
     QLabel *icon = new QLabel;
-    QPixmap ipix("/usr/share/lingmo/distribution/distribution_logo.svg");
+    QPixmap ipix(":/logo.png");
     if (!ipix.isNull())
         icon->setPixmap(ipix.scaled(96, 96, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     icon->setAlignment(Qt::AlignCenter);

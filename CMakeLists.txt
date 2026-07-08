@@ -19,11 +19,16 @@ if(Qt6LinguistTools_FOUND)
     add_executable(lingmo-oobe
         main.cpp
         OobeWindow.cpp
+        resources.qrc
     )
     target_link_libraries(lingmo-oobe Qt6::Widgets)
     qt6_add_translations(lingmo-oobe
         TS_FILES ${TS_FILES}
         RESOURCE_PREFIX "/i18n"
+    )
+    qt6_add_resources(lingmo-oobe "oobe_resources"
+        PREFIX "/"
+        FILES logo.png
     )
 else()
     message(STATUS "Qt6 LinguistTools not found, using lrelease at configure time")
@@ -47,8 +52,14 @@ else()
     add_executable(lingmo-oobe
         main.cpp
         OobeWindow.cpp
+        resources.qrc
     )
     target_link_libraries(lingmo-oobe Qt6::Widgets)
+
+    qt6_add_resources(lingmo-oobe "oobe_resources"
+        PREFIX "/"
+        FILES logo.png
+    )
 
     # Embed .qm if available
     if(EXISTS ${QM_FILE})
