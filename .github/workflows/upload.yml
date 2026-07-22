@@ -42,7 +42,7 @@ jobs:
         with:
           remove-old-sources: true
           obs-package-name: 'lingmo-installer-firstboot'
-          obs-project-name: 'home:LingmoOS'
+          obs-project-name: 'home:LingmoOS:Lithium'
           obs-user-name: ${{ secrets.OBS_USERNAME }}
           obs-password: ${{ secrets.OBS_TOKEN }}
           obs-instance-url: 'https://api.opensuse.org'
