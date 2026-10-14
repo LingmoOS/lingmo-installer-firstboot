@@ -7,6 +7,7 @@
 #include <QGraphicsOpacityEffect>
 #include <QPainter>
 #include <QPropertyAnimation>
+#include <QScrollArea>
 #include <QScreen>
 #include <QStyle>
 #include <QTimer>
@@ -16,8 +17,37 @@
 #endif
 
 static const double CARD_RATIO = 0.60;
+static const int CARD_MIN_W = 720;          // 再窄右侧表单就放不下
+static const int CARD_MAX_W = 1100;         // 大屏不要把卡片拉得过宽
+static const int CARD_MARGIN = 80;          // 卡片与屏幕边缘的余量
+static const double CARD_MAX_H_RATIO = 0.86; // 卡片最高占屏幕高度的比例
+static const int LEFT_MIN_W = 220;          // 左侧品牌面板宽度区间
+static const int LEFT_MAX_W = 420;
+static const int LEFT_HIDE_BELOW_W = 800;   // 卡片窄于此值时隐藏左面板
 static const int PAGE_PADDING = 40;
 static const char* OOBE_FLAG = "/etc/.firstboot-complete";
+
+// 读取 os-release 字段（先 /usr/lib/os-release，再 /etc/os-release）。
+// 版本号由此运行时获得，跟随系统版本，不再随源码写死。
+static QString osReleaseField(const QString &key)
+{
+    const char *paths[] = { "/usr/lib/os-release", "/etc/os-release" };
+    for (const char *path : paths) {
+        QFile f(QString::fromLatin1(path));
+        if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+            continue;
+        while (!f.atEnd()) {
+            const QString line = QString::fromUtf8(f.readLine()).trimmed();
+            if (!line.startsWith(key + QLatin1Char('=')))
+                continue;
+            QString value = line.mid(key.length() + 1);
+            if (value.length() >= 2 && value.startsWith(QLatin1Char('"')) && value.endsWith(QLatin1Char('"')))
+                value = value.mid(1, value.length() - 2);
+            return value;
+        }
+    }
+    return QString();
+}
 
 OobeWindow::OobeWindow(QWidget *parent)
     : QWidget(parent)
@@ -25,7 +55,7 @@ OobeWindow::OobeWindow(QWidget *parent)
     setObjectName("oobeWindow");
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 
-    QSize screenSize = qApp->primaryScreen()->geometry().size();
+    QSize screenSize = qApp->primaryScreen()->availableGeometry().size();
     setGeometry(0, 0, screenSize.width(), screenSize.height());
 
     setupBackground();
@@ -113,12 +143,20 @@ void OobeWindow::setupBackground()
 
 QWidget* OobeWindow::createCard()
 {
-    QSize screenSize = qApp->primaryScreen()->geometry().size();
-    int cardW = qMin(static_cast<int>(screenSize.width() * CARD_RATIO), screenSize.width() - 100);
+    QSize screenSize = qApp->primaryScreen()->availableGeometry().size();
+
+    // 宽度：按比例，但限制在 [minW, maxW]；minW 也要保证不超过屏宽-余量
+    // 高度：不超过屏幕的 CARD_MAX_H_RATIO，超出部分由内部滚动区承担
+    const int maxW = qMin(CARD_MAX_W, screenSize.width() - CARD_MARGIN);
+    const int minW = qMin(CARD_MIN_W, maxW);
+    m_cardWidth = qBound(minW,
+                         static_cast<int>(screenSize.width() * CARD_RATIO),
+                         maxW);
 
     m_cardWidget = new QWidget(this);
     m_cardWidget->setObjectName("oobeCard");
-    m_cardWidget->setFixedWidth(cardW);
+    m_cardWidget->setFixedWidth(m_cardWidth);
+    m_cardWidget->setMaximumHeight(static_cast<int>(screenSize.height() * CARD_MAX_H_RATIO));
 
     QVBoxLayout *cardLayout = new QVBoxLayout(m_cardWidget);
     cardLayout->setContentsMargins(0, 0, 0, 0);
@@ -155,7 +193,13 @@ QWidget* OobeWindow::createCard()
     m_stack->addWidget(createConfirmPage());
     m_stack->addWidget(createInstallPage());
     m_stack->addWidget(createFinishedPage());
-    cardLayout->addWidget(m_stack, 1);
+    QScrollArea *scroll = new QScrollArea;
+    scroll->setObjectName("oobeScroll");
+    scroll->setWidgetResizable(true);
+    scroll->setFrameShape(QFrame::NoFrame);
+    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scroll->setWidget(m_stack);
+    cardLayout->addWidget(scroll, 1);
 
     // --- Navigation ---
     QWidget *nav = new QWidget;
@@ -236,7 +280,8 @@ QWidget* OobeWindow::createWelcomePage()
     // Left panel: logo / illustration
     QWidget *leftPanel = new QWidget;
     leftPanel->setObjectName("welcomeLeft");
-    leftPanel->setFixedWidth(480);
+    leftPanel->setFixedWidth(qBound(LEFT_MIN_W, m_cardWidth * 2 / 5, LEFT_MAX_W));
+    leftPanel->setVisible(m_cardWidth >= LEFT_HIDE_BELOW_W);
 
     QVBoxLayout *ll = new QVBoxLayout(leftPanel);
     ll->setAlignment(Qt::AlignCenter);
@@ -248,7 +293,7 @@ QWidget* OobeWindow::createWelcomePage()
     icon->setAlignment(Qt::AlignCenter);
     ll->addWidget(icon);
 
-    QLabel *osName = new QLabel("Lingmo OS", leftPanel);
+    QLabel *osName = new QLabel(tr("Lingmo OS"), leftPanel);
     osName->setAlignment(Qt::AlignCenter);
     QFont nf = osName->font();
     nf.setPointSize(nf.pointSize() + 4);
@@ -257,7 +302,9 @@ QWidget* OobeWindow::createWelcomePage()
     osName->setStyleSheet("color: white; background: transparent;");
     ll->addWidget(osName);
 
-    QLabel *versionLabel = new QLabel("5.0", leftPanel);
+    QLabel *versionLabel = new QLabel(osReleaseField(QStringLiteral("VERSION_ID")), leftPanel);
+    if (versionLabel->text().isEmpty())
+        versionLabel->setVisible(false);
     versionLabel->setAlignment(Qt::AlignCenter);
     QFont vf = versionLabel->font();
     vf.setPointSize(vf.pointSize());
@@ -365,7 +412,7 @@ QWidget* OobeWindow::createHostnamePage()
     l->addWidget(sub);
     l->addSpacing(8);
 
-    m_hostnameEdit = new QLineEdit(tr("lingmo-pc"));
+    m_hostnameEdit = new QLineEdit(QStringLiteral("lingmo-pc"));
     m_hostnameEdit->setFixedHeight(36);
     m_hostnameEdit->setStyleSheet(
         "QLineEdit { border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; font-size: 14px; }"

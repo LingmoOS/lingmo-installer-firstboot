@@ -47,6 +47,7 @@ private:
     QLineEdit *m_hostnameEdit;
 
     QWidget *m_cardWidget;
+    int m_cardWidth = 0;
     QLabel *m_progressLabel;
     QWidget *m_progressBar;
 };

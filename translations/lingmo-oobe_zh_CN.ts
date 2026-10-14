@@ -54,10 +54,6 @@ Click &quot;Next&quot; to continue.</source>
         <translation>为这台计算机取一个名字。</translation>
     </message>
     <message>
-        <source>lingmo-pc</source>
-        <translation>lingmo-pc</translation>
-    </message>
-    <message>
         <source>Confirm Settings</source>
         <translation>确认设置</translation>
     </message>
