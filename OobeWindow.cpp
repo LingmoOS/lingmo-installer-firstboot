@@ -713,17 +713,9 @@ void OobeWindow::applySettings()
     cmds << QString("echo '%1:%2' | chpasswd").arg(m_username, m_password);
     cmds << QString("hostnamectl set-hostname %1").arg(m_hostname);
 
-    // SDDM autologin – replace first-boot config and set real DE session
-    cmds << QString("mkdir -p /etc/sddm.conf.d");
-    cmds << QString("rm -f /etc/sddm.conf.d/lingmo-firstboot.conf");
-    cmds << QString("echo '[Autologin]' > /etc/sddm.conf.d/lingmo-autologin.conf");
-    cmds << QString("echo 'User=%1' >> /etc/sddm.conf.d/lingmo-autologin.conf").arg(m_username);
-    cmds << QString("echo 'Session=lingmo.desktop' >> /etc/sddm.conf.d/lingmo-autologin.conf");
-    // lingmo-dm reads its own file; leave Session unset so its default applies.
-    cmds << QString("printf '[Autologin]\\nUser=%1\\n' > /etc/lingmo-dm.conf").arg(m_username);
-
-    // Remove OOBE session files so SDDM won't try to use them on next login
-    // cmds << "rm -f /usr/share/xsessions/lingmo-oobe.desktop /usr/share/wayland-sessions/lingmo-oobe.desktop /etc/xdg/autostart/oobe.desktop /lib/systemd/system/firstboot.service";
+    // The display manager is lingmo-dm: point its autologin at the account
+    // the wizard created and at the regular desktop session.
+    cmds << QString("printf '[Autologin]\\nUser=%1\\nSession=lingmo-wayland\\n' > /etc/lingmo-dm.conf").arg(m_username);
 
     // Keep the original user: it is the account the OOBE was entered with,
     // and the fallback if the user creation below is interrupted. The new

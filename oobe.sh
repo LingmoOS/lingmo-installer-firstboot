@@ -3,10 +3,10 @@
 #   oobe.sh setup    - pre-DM: write the first-boot autologin configuration
 #   oobe.sh          - session: launch lingmo-oobe
 #
-# The OOBE is entered as the account the installation created (the system's
-# original user). That account is kept after the wizard: it is what re-enters
-# the OOBE if the first boot is interrupted, and the wizard only adds the
-# account the owner will use.
+# The first boot logs in automatically as the account the installation
+# created, and runs the OOBE session. The account is kept after the wizard: it
+# is what re-enters the OOBE if the first boot is interrupted, and the wizard
+# only adds the account the owner will use.
 
 case "${1:-run}" in
     setup)
@@ -20,15 +20,7 @@ case "${1:-run}" in
                 -s /bin/bash "${original_user}" 2>/dev/null || true
         fi
 
-        mkdir -p /etc/sddm.conf.d
-        cat > /etc/sddm.conf.d/lingmo-firstboot.conf << EOF
-[Autologin]
-User=${original_user}
-Session=lingmo-oobe.desktop
-EOF
-
-        # lingmo-dm, the display manager actually installed: it reads its own
-        # file and names sessions by their desktop file name without suffix.
+        # lingmo-dm names a session by its desktop file name without suffix.
         cat > /etc/lingmo-dm.conf << EOF
 [Autologin]
 User=${original_user}
