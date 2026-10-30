@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+# firstboot.service is installed by CMake, so debhelper does not enable it on
+# its own; without it the first boot never writes the OOBE autologin and the
+# installed system shows a login screen with no accounts.
+if [ "$1" = "configure" ]; then
+    systemctl enable firstboot.service >/dev/null 2>&1 || true
+fi
+
+#DEBHELPER#
+
+exit 0

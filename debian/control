@@ -15,7 +15,7 @@ Architecture: any
 Depends:
  ${shlibs:Depends},
  ${misc:Depends},
- sddm | lightdm
+ lingmo-dm | sddm | lightdm
 Description: Lingmo OS first-boot OOBE wizard
  Runs on first boot after installation to create a user,
  set hostname, and configure SDDM autologin before

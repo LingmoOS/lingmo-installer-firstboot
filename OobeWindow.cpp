@@ -719,6 +719,8 @@ void OobeWindow::applySettings()
     cmds << QString("echo '[Autologin]' > /etc/sddm.conf.d/lingmo-autologin.conf");
     cmds << QString("echo 'User=%1' >> /etc/sddm.conf.d/lingmo-autologin.conf").arg(m_username);
     cmds << QString("echo 'Session=lingmo.desktop' >> /etc/sddm.conf.d/lingmo-autologin.conf");
+    // lingmo-dm reads its own file; leave Session unset so its default applies.
+    cmds << QString("printf '[Autologin]\\nUser=%1\\n' > /etc/lingmo-dm.conf").arg(m_username);
 
     // Remove OOBE session files so SDDM won't try to use them on next login
     // cmds << "rm -f /usr/share/xsessions/lingmo-oobe.desktop /usr/share/wayland-sessions/lingmo-oobe.desktop /etc/xdg/autostart/oobe.desktop /lib/systemd/system/firstboot.service";
