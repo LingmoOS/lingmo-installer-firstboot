@@ -1,6 +1,8 @@
-// Allow liveuser to run pkexec without password during OOBE
+// Allow the OOBE to run its setup commands without a password: the wizard is
+// entered as the system's original local user (see oobe.sh), which is not
+// known at build time.
 polkit.addRule(function(action, subject) {
-    if (subject.user == "liveuser") {
+    if (subject.local && subject.active) {
         return polkit.Result.YES;
     }
 });

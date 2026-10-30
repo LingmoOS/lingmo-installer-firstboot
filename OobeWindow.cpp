@@ -723,8 +723,9 @@ void OobeWindow::applySettings()
     // Remove OOBE session files so SDDM won't try to use them on next login
     // cmds << "rm -f /usr/share/xsessions/lingmo-oobe.desktop /usr/share/wayland-sessions/lingmo-oobe.desktop /etc/xdg/autostart/oobe.desktop /lib/systemd/system/firstboot.service";
 
-    // Remove default live user
-    cmds << "userdel -r liveuser 2>/dev/null; true";
+    // Keep the original user: it is the account the OOBE was entered with,
+    // and the fallback if the user creation below is interrupted. The new
+    // account is added next to it and autologin is pointed at the new one.
 
     // Mark OOBE complete
     cmds << QString("touch %1").arg(OOBE_FLAG);
