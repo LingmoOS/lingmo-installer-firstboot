@@ -659,21 +659,27 @@ void OobeWindow::nextPage()
             m_usernameError->setVisible(true);
             return;
         }
-        // Reject a username that already exists in /etc/passwd to avoid a
-        // failed useradd that would break the rest of the setup sequence.
+        // Reject a username that matches a system account (UID < 1000), which
+        // would make useradd fail. The live user (a normal account) is removed
+        // before useradd runs, so reusing its name is allowed.
         bool taken = false;
         QFile passwd("/etc/passwd");
         if (passwd.open(QIODevice::ReadOnly | QIODevice::Text)) {
             while (!passwd.atEnd()) {
                 const QString line = QString::fromUtf8(passwd.readLine());
-                if (line.section(':', 0, 0) == m_username) {
-                    taken = true;
-                    break;
+                const QStringList fields = line.split(':');
+                if (fields.size() >= 3 && fields.at(0) == m_username) {
+                    bool ok = false;
+                    const int uid = fields.at(2).toInt(&ok);
+                    if (ok && uid < 1000) {
+                        taken = true;
+                        break;
+                    }
                 }
             }
         }
         if (taken) {
-            m_usernameError->setText(tr("The username \"%1\" is already taken. Please choose another.").arg(m_username));
+            m_usernameError->setText(tr("The username \"%1\" is a reserved system name. Please choose another.").arg(m_username));
             m_usernameError->setVisible(true);
             return;
         }
@@ -747,6 +753,13 @@ void OobeWindow::applySettings()
     QCoreApplication::processEvents();
 
     QStringList cmds;
+    // Remove the live user first so the chosen username is always available,
+    // even when it matches the live account name (e.g. "lingmo"). The window
+    // between deletion and creation is negligible; the OOBE-complete flag is
+    // written only after useradd succeeds, so an interruption here will re-
+    // enter OOBE on the next boot via the firstboot.service setup path, which
+    // recreates an autologin account if none exists.
+    cmds << "userdel -r live 2>/dev/null || true";
     cmds << QString("useradd -m -G sudo,audio,video,plugdev,netdev,bluetooth -s /bin/bash %1").arg(m_username);
     cmds << QString("echo '%1:%2' | chpasswd").arg(m_username, m_password);
     cmds << QString("hostnamectl set-hostname %1").arg(m_hostname);
@@ -757,12 +770,6 @@ void OobeWindow::applySettings()
 
     // Mark OOBE complete
     cmds << QString("touch %1").arg(OOBE_FLAG);
-
-    // Remove the live user now that the real account has been created and
-    // autologin has been pointed at it. The -r flag removes the home
-    // directory and mail spool as well. The live user is no longer needed
-    // and leaving it would be a security risk (known or empty password).
-    cmds << "userdel -r live 2>/dev/null || true";
 
     // Self-remove OOBE package to reduce footprint
     cmds << "apt-get remove -y lingmo-oobe 2>/dev/null || dpkg --purge lingmo-oobe 2>/dev/null || true";
