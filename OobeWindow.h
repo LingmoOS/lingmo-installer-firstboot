@@ -49,6 +49,7 @@ private:
     QLabel    *m_passwordError;
     QLabel    *m_confirmError;
     QLabel    *m_hostnameError;
+    QLabel    *m_finishDesc;
 
     QWidget *m_cardWidget;
     int m_cardWidth = 0;

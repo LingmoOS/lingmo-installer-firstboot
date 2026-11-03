@@ -16,6 +16,10 @@
         <translation>下一步</translation>
     </message>
     <message>
+        <source>Finish</source>
+        <translation>完成</translation>
+    </message>
+    <message>
         <source>Welcome to Lingmo OS</source>
         <translation>欢迎使用 Lingmo OS</translation>
     </message>
@@ -38,20 +42,56 @@ Click &quot;Next&quot; to continue.</source>
         <translation>用户名</translation>
     </message>
     <message>
+        <source>e.g. alice</source>
+        <translation>例如 alice</translation>
+    </message>
+    <message>
+        <source>Username must not be empty.</source>
+        <translation>用户名不能为空。</translation>
+    </message>
+    <message>
+        <source>Must start with a letter or &apos;_&apos;, then lowercase letters, digits, &apos;-&apos; or &apos;_&apos;. Max 32 characters.</source>
+        <translation>必须以字母或"_"开头，后续为小写字母、数字、"-"或"_"。最长 32 个字符。</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is a reserved system name. Please choose another.</source>
+        <translation>"%1" 是系统保留名称，请选择其他用户名。</translation>
+    </message>
+    <message>
         <source>Password</source>
         <translation>密码</translation>
+    </message>
+    <message>
+        <source>Password must not be empty.</source>
+        <translation>密码不能为空。</translation>
     </message>
     <message>
         <source>Confirm Password</source>
         <translation>确认密码</translation>
     </message>
     <message>
+        <source>Passwords do not match.</source>
+        <translation>两次输入的密码不一致。</translation>
+    </message>
+    <message>
         <source>Computer Name</source>
         <translation>计算机名称</translation>
     </message>
     <message>
-        <source>Give this computer a name.</source>
-        <translation>为这台计算机取一个名字。</translation>
+        <source>Give this computer a name on the network.</source>
+        <translation>为这台计算机取一个在网络上的名称。</translation>
+    </message>
+    <message>
+        <source>Hostname</source>
+        <translation>主机名</translation>
+    </message>
+    <message>
+        <source>e.g. lingmo-pc</source>
+        <translation>例如 lingmo-pc</translation>
+    </message>
+    <message>
+        <source>Letters, digits and hyphens only. Cannot start or end with a hyphen.</source>
+        <translation>仅允许字母、数字和连字符。不能以连字符开头或结尾。</translation>
     </message>
     <message>
         <source>Confirm Settings</source>
@@ -108,10 +148,6 @@ After reboot, log in with &quot;%1&quot;.</source>
 
 您的系统已经准备就绪。
 重启后请使用"%1"登录。</translation>
-    </message>
-    <message>
-        <source>Finish</source>
-        <translation>完成</translation>
     </message>
     <message>
         <source>Applying settings...</source>

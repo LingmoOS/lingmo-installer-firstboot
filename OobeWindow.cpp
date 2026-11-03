@@ -630,15 +630,22 @@ QWidget* OobeWindow::createFinishedPage()
     heading->setAlignment(Qt::AlignCenter);
     l->addWidget(heading);
 
-    QLabel *desc = new QLabel(
-        tr("Welcome to Lingmo OS!\n\nYour system is ready.\nAfter reboot, log in with \"%1\".").arg(m_username));
-    desc->setObjectName("finishDesc");
-    desc->setAlignment(Qt::AlignCenter);
-    QFont df = desc->font();
+    // m_username is set in nextPage() before this page is shown, so update
+    // the label when we actually arrive here rather than at construction time.
+    m_finishDesc = new QLabel;
+    m_finishDesc->setObjectName("finishDesc");
+    m_finishDesc->setAlignment(Qt::AlignCenter);
+    QFont df = m_finishDesc->font();
     df.setPointSize(df.pointSize() + 1);
-    desc->setFont(df);
-    desc->setWordWrap(true);
-    l->addWidget(desc);
+    m_finishDesc->setFont(df);
+    m_finishDesc->setWordWrap(true);
+    l->addWidget(m_finishDesc);
+
+    connect(m_stack, &QStackedWidget::currentChanged, this, [this](int idx) {
+        if (idx == m_stack->count() - 1)
+            m_finishDesc->setText(
+                tr("Welcome to Lingmo OS!\n\nYour system is ready.\nAfter reboot, log in with \"%1\".").arg(m_username));
+    });
 
     l->addStretch();
 
@@ -648,15 +655,14 @@ QWidget* OobeWindow::createFinishedPage()
     rebootBtn->setCursor(Qt::PointingHandCursor);
     l->addWidget(rebootBtn, 0, Qt::AlignCenter);
 
-    connect(rebootBtn, &QPushButton::clicked, this, [this, rebootBtn]() {
+    // OOBE runs as root (applySettings executes privileged commands directly),
+    // so systemctl reboot is always available without pkexec.
+    connect(rebootBtn, &QPushButton::clicked, this, [rebootBtn]() {
         rebootBtn->setEnabled(false);
         rebootBtn->setText(tr("Rebooting..."));
         QCoreApplication::processEvents();
 #ifdef Q_OS_UNIX
-        if (getuid() != 0)
-            QProcess::startDetached("pkexec", { "systemctl", "reboot" });
-        else
-            QProcess::startDetached("systemctl", { "reboot" });
+        QProcess::startDetached("systemctl", { "reboot" });
 #endif
     });
 
