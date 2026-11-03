@@ -1,3 +1,12 @@
+lingmo-oobe (1.6.7.lingmo.1) unstable; urgency=medium
+
+  * fix: finished page description now shows the correct username.
+  * fix: reboot button uses systemctl directly (OOBE runs as root).
+  * i18n: add missing zh_CN translations for all validation messages,
+    hostname field label, placeholder and hint text.
+
+ -- Lingmo OS Team <team@lingmo.org>  Tue, 03 Nov 2026 15:10:00 +0800
+
 lingmo-oobe (1.6.6.lingmo.1) unstable; urgency=medium
 
   * feat: add per-field validation for username, password and hostname.
