@@ -7,6 +7,7 @@
 #include <QGraphicsOpacityEffect>
 #include <QPainter>
 #include <QPropertyAnimation>
+#include <QRegularExpression>
 #include <QScrollArea>
 #include <QScreen>
 #include <QStyle>
@@ -389,6 +390,13 @@ QWidget* OobeWindow::createUserPage()
     l->addWidget(makeField(tr("Password"), m_passwordEdit, true));
     l->addWidget(makeField(tr("Confirm Password"), m_confirmPwdEdit, true));
 
+    // Error hint for an invalid or taken username, hidden until needed.
+    m_usernameError = new QLabel;
+    m_usernameError->setObjectName("usernameError");
+    m_usernameError->setStyleSheet("color: #c0392b; font-size: 12px; background: transparent;");
+    m_usernameError->setVisible(false);
+    l->addWidget(m_usernameError);
+
     l->addStretch();
     return page;
 }
@@ -639,12 +647,42 @@ void OobeWindow::nextPage()
         m_password = m_passwordEdit->text();
         QString confirm = m_confirmPwdEdit->text();
 
+        // Validate username format: non-empty, lowercase, no spaces.
+        static const QRegularExpression kValidName("^[a-z_][a-z0-9_-]{0,31}$");
         if (m_username.isEmpty() || m_password.isEmpty()) {
+            m_usernameError->setText(tr("Username and password must not be empty."));
+            m_usernameError->setVisible(m_username.isEmpty());
+            return;
+        }
+        if (!kValidName.match(m_username).hasMatch()) {
+            m_usernameError->setText(tr("Username may only contain lowercase letters, digits, '-' or '_'."));
+            m_usernameError->setVisible(true);
+            return;
+        }
+        // Reject a username that already exists in /etc/passwd to avoid a
+        // failed useradd that would break the rest of the setup sequence.
+        bool taken = false;
+        QFile passwd("/etc/passwd");
+        if (passwd.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            while (!passwd.atEnd()) {
+                const QString line = QString::fromUtf8(passwd.readLine());
+                if (line.section(':', 0, 0) == m_username) {
+                    taken = true;
+                    break;
+                }
+            }
+        }
+        if (taken) {
+            m_usernameError->setText(tr("The username \"%1\" is already taken. Please choose another.").arg(m_username));
+            m_usernameError->setVisible(true);
             return;
         }
         if (m_password != confirm) {
+            m_usernameError->setText(tr("Passwords do not match."));
+            m_usernameError->setVisible(true);
             return;
         }
+        m_usernameError->setVisible(false);
     }
 
     if (idx == 2) {
