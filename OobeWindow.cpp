@@ -717,12 +717,14 @@ void OobeWindow::applySettings()
     // the wizard created and at the regular desktop session.
     cmds << QString("printf '[Autologin]\\nUser=%1\\nSession=lingmo-wayland\\n' > /etc/lingmo-dm.conf").arg(m_username);
 
-    // Keep the original user: it is the account the OOBE was entered with,
-    // and the fallback if the user creation below is interrupted. The new
-    // account is added next to it and autologin is pointed at the new one.
-
     // Mark OOBE complete
     cmds << QString("touch %1").arg(OOBE_FLAG);
+
+    // Remove the live user now that the real account has been created and
+    // autologin has been pointed at it. The -r flag removes the home
+    // directory and mail spool as well. The live user is no longer needed
+    // and leaving it would be a security risk (known or empty password).
+    cmds << "userdel -r live 2>/dev/null || true";
 
     // Self-remove OOBE package to reduce footprint
     cmds << "apt-get remove -y lingmo-oobe 2>/dev/null || dpkg --purge lingmo-oobe 2>/dev/null || true";
