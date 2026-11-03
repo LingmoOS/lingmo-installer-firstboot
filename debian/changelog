@@ -1,3 +1,13 @@
+lingmo-oobe (1.6.6.lingmo.1) unstable; urgency=medium
+
+  * feat: add per-field validation for username, password and hostname.
+    Username enforced via regex (lowercase, max 32 chars), system account
+    names rejected. Password must not be empty. Hostname follows RFC 1123
+    (letters, digits, hyphens; not starting/ending with hyphen; max 63).
+    Each field has its own inline error label; all errors shown at once.
+
+ -- Lingmo OS Team <team@lingmo.org>  Tue, 03 Nov 2026 14:40:00 +0800
+
 lingmo-oobe (1.6.5.lingmo.1) unstable; urgency=medium
 
   * ui: align OOBE controls with Lingmo SDK style via QSS.
