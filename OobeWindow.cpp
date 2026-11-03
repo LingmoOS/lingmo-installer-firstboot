@@ -247,23 +247,25 @@ QWidget* OobeWindow::createCard()
         "  border-top: 1px solid rgba(0, 0, 0, 0.06);"
         "}"
         "#navBackBtn {"
-        "  background: rgba(0, 0, 0, 0.06);"
+        "  background: #F2F4F5;"
         "  border: none;"
-        "  border-radius: 6px;"
-        "  color: #333;"
+        "  border-radius: 10px;"
+        "  color: #323238;"
         "  font-size: 13px;"
         "}"
-        "#navBackBtn:hover { background: rgba(0, 0, 0, 0.1); }"
+        "#navBackBtn:hover { background: #DCDEDF; }"
+        "#navBackBtn:pressed { background: #C9CBCC; }"
         "#navNextBtn {"
-        "  background: #0058a9;"
+        "  background: #3385FF;"
         "  border: none;"
-        "  border-radius: 6px;"
-        "  color: white;"
+        "  border-radius: 10px;"
+        "  color: #FFFFFF;"
         "  font-size: 13px;"
-        "  font-weight: bold;"
+        "  font-weight: 600;"
         "}"
-        "#navNextBtn:hover { background: #0072d2; }"
-        "#navNextBtn:disabled { background: #aaa; }"
+        "#navNextBtn:hover { background: #3892FF; }"
+        "#navNextBtn:pressed { background: #2E79E7; }"
+        "#navNextBtn:disabled { background: #A3C2F5; color: #FFFFFF; }"
     );
 
     return m_cardWidget;
@@ -374,13 +376,13 @@ QWidget* OobeWindow::createUserPage()
         vl->setContentsMargins(0, 0, 0, 0);
         vl->setSpacing(4);
         QLabel *lb = new QLabel(label);
-        lb->setStyleSheet("font-size: 12px; color: #555;");
+        lb->setStyleSheet("font-size: 12px; color: #64646E;");
         vl->addWidget(lb);
         edit = new QLineEdit;
         edit->setFixedHeight(36);
         edit->setStyleSheet(
-            "QLineEdit { border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; font-size: 14px; }"
-            "QLineEdit:focus { border-color: #0058a9; }");
+            "QLineEdit { border: 1px solid #D9DADD; border-radius: 10px; padding: 4px 10px; font-size: 14px; background: #FFFFFF; }"
+            "QLineEdit:focus { border-color: #3385FF; }");
         if (pwd) edit->setEchoMode(QLineEdit::Password);
         vl->addWidget(edit);
         return w;
@@ -423,8 +425,8 @@ QWidget* OobeWindow::createHostnamePage()
     m_hostnameEdit = new QLineEdit(QStringLiteral("lingmo-pc"));
     m_hostnameEdit->setFixedHeight(36);
     m_hostnameEdit->setStyleSheet(
-        "QLineEdit { border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; font-size: 14px; }"
-        "QLineEdit:focus { border-color: #0058a9; }");
+        "QLineEdit { border: 1px solid #D9DADD; border-radius: 10px; padding: 4px 10px; font-size: 14px; background: #FFFFFF; }"
+        "QLineEdit:focus { border-color: #3385FF; }");
     l->addWidget(m_hostnameEdit);
 
     l->addStretch();
@@ -602,18 +604,19 @@ QWidget* OobeWindow::createFinishedPage()
 
     page->setStyleSheet(
         "#pageFinished { background: transparent; }"
-        "#finishDesc { color: #444; }"
+        "#finishDesc { color: #64646E; }"
         "#rebootBtn {"
-        "  background: #0058a9;"
+        "  background: #3385FF;"
         "  border: none;"
-        "  border-radius: 8px;"
-        "  color: white;"
+        "  border-radius: 10px;"
+        "  color: #FFFFFF;"
         "  font-size: 15px;"
-        "  font-weight: bold;"
+        "  font-weight: 600;"
         "  padding: 12px 0;"
         "}"
-        "#rebootBtn:hover { background: #0072d2; }"
-        "#rebootBtn:disabled { background: #aaa; }"
+        "#rebootBtn:hover { background: #3892FF; }"
+        "#rebootBtn:pressed { background: #2E79E7; }"
+        "#rebootBtn:disabled { background: #A3C2F5; }"
     );
 
     return page;
