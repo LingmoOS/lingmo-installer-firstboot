@@ -1,3 +1,12 @@
+lingmo-oobe (1.6.5.lingmo.1) unstable; urgency=medium
+
+  * ui: align OOBE controls with Lingmo SDK style via QSS.
+    Accent colour, button radii, hover/pressed states and input field
+    borders now match the SDK's ButtonBackground, mediumRadius and
+    accent::blue values.
+
+ -- Lingmo OS Team <team@lingmo.org>  Tue, 03 Nov 2026 14:24:00 +0800
+
 lingmo-oobe (1.6.4.lingmo.1) unstable; urgency=medium
 
   * Remove live user after OOBE setup completes for security.
