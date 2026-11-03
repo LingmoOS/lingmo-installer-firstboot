@@ -46,6 +46,9 @@ private:
     QLineEdit *m_confirmPwdEdit;
     QLineEdit *m_hostnameEdit;
     QLabel    *m_usernameError;
+    QLabel    *m_passwordError;
+    QLabel    *m_confirmError;
+    QLabel    *m_hostnameError;
 
     QWidget *m_cardWidget;
     int m_cardWidth = 0;

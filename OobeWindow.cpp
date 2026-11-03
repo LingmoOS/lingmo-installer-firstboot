@@ -8,6 +8,7 @@
 #include <QPainter>
 #include <QPropertyAnimation>
 #include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <QScrollArea>
 #include <QScreen>
 #include <QStyle>
@@ -370,34 +371,70 @@ QWidget* OobeWindow::createUserPage()
     l->addWidget(sub);
     l->addSpacing(8);
 
-    auto makeField = [](const QString &label, QLineEdit *&edit, bool pwd = false) {
-        QWidget *w = new QWidget;
-        QVBoxLayout *vl = new QVBoxLayout(w);
-        vl->setContentsMargins(0, 0, 0, 0);
-        vl->setSpacing(4);
-        QLabel *lb = new QLabel(label);
-        lb->setStyleSheet("font-size: 12px; color: #64646E;");
-        vl->addWidget(lb);
-        edit = new QLineEdit;
-        edit->setFixedHeight(36);
-        edit->setStyleSheet(
-            "QLineEdit { border: 1px solid #D9DADD; border-radius: 10px; padding: 4px 10px; font-size: 14px; background: #FFFFFF; }"
-            "QLineEdit:focus { border-color: #3385FF; }");
-        if (pwd) edit->setEchoMode(QLineEdit::Password);
-        vl->addWidget(edit);
-        return w;
-    };
+    const QString fieldStyle =
+        "QLineEdit { border: 1px solid #D9DADD; border-radius: 10px; padding: 4px 10px; font-size: 14px; background: #FFFFFF; }"
+        "QLineEdit:focus { border-color: #3385FF; }"
+        "QLineEdit[invalid=\"true\"] { border-color: #D92D20; }";
+    const QString labelStyle = "font-size: 12px; color: #64646E;";
+    const QString errorStyle = "color: #D92D20; font-size: 12px; background: transparent;";
 
-    l->addWidget(makeField(tr("Username"), m_usernameEdit));
-    l->addWidget(makeField(tr("Password"), m_passwordEdit, true));
-    l->addWidget(makeField(tr("Confirm Password"), m_confirmPwdEdit, true));
-
-    // Error hint for an invalid or taken username, hidden until needed.
+    // Username
+    auto *usernameWidget = new QWidget;
+    auto *uvl = new QVBoxLayout(usernameWidget);
+    uvl->setContentsMargins(0, 0, 0, 0); uvl->setSpacing(4);
+    auto *usernameLabel = new QLabel(tr("Username"));
+    usernameLabel->setStyleSheet(labelStyle);
+    uvl->addWidget(usernameLabel);
+    m_usernameEdit = new QLineEdit;
+    m_usernameEdit->setFixedHeight(36);
+    m_usernameEdit->setStyleSheet(fieldStyle);
+    m_usernameEdit->setMaxLength(32);
+    m_usernameEdit->setPlaceholderText(tr("e.g. alice"));
+    // Only allow lowercase letters, digits, '-' and '_' while typing.
+    m_usernameEdit->setValidator(new QRegularExpressionValidator(
+        QRegularExpression("[a-z_][a-z0-9_-]{0,31}"), m_usernameEdit));
+    uvl->addWidget(m_usernameEdit);
     m_usernameError = new QLabel;
-    m_usernameError->setObjectName("usernameError");
-    m_usernameError->setStyleSheet("color: #c0392b; font-size: 12px; background: transparent;");
+    m_usernameError->setStyleSheet(errorStyle);
     m_usernameError->setVisible(false);
-    l->addWidget(m_usernameError);
+    uvl->addWidget(m_usernameError);
+    l->addWidget(usernameWidget);
+
+    // Password
+    auto *passwordWidget = new QWidget;
+    auto *pvl = new QVBoxLayout(passwordWidget);
+    pvl->setContentsMargins(0, 0, 0, 0); pvl->setSpacing(4);
+    auto *passwordLabel = new QLabel(tr("Password"));
+    passwordLabel->setStyleSheet(labelStyle);
+    pvl->addWidget(passwordLabel);
+    m_passwordEdit = new QLineEdit;
+    m_passwordEdit->setFixedHeight(36);
+    m_passwordEdit->setStyleSheet(fieldStyle);
+    m_passwordEdit->setEchoMode(QLineEdit::Password);
+    pvl->addWidget(m_passwordEdit);
+    m_passwordError = new QLabel;
+    m_passwordError->setStyleSheet(errorStyle);
+    m_passwordError->setVisible(false);
+    pvl->addWidget(m_passwordError);
+    l->addWidget(passwordWidget);
+
+    // Confirm password
+    auto *confirmWidget = new QWidget;
+    auto *cvl = new QVBoxLayout(confirmWidget);
+    cvl->setContentsMargins(0, 0, 0, 0); cvl->setSpacing(4);
+    auto *confirmLabel = new QLabel(tr("Confirm Password"));
+    confirmLabel->setStyleSheet(labelStyle);
+    cvl->addWidget(confirmLabel);
+    m_confirmPwdEdit = new QLineEdit;
+    m_confirmPwdEdit->setFixedHeight(36);
+    m_confirmPwdEdit->setStyleSheet(fieldStyle);
+    m_confirmPwdEdit->setEchoMode(QLineEdit::Password);
+    cvl->addWidget(m_confirmPwdEdit);
+    m_confirmError = new QLabel;
+    m_confirmError->setStyleSheet(errorStyle);
+    m_confirmError->setVisible(false);
+    cvl->addWidget(m_confirmError);
+    l->addWidget(confirmWidget);
 
     l->addStretch();
     return page;
@@ -418,16 +455,37 @@ QWidget* OobeWindow::createHostnamePage()
     heading->setFont(hf);
     l->addWidget(heading);
 
-    QLabel *sub = new QLabel(tr("Give this computer a name."));
+    QLabel *sub = new QLabel(tr("Give this computer a name on the network."));
     l->addWidget(sub);
     l->addSpacing(8);
 
+    auto *hostnameLabel = new QLabel(tr("Hostname"));
+    hostnameLabel->setStyleSheet("font-size: 12px; color: #64646E;");
+    l->addWidget(hostnameLabel);
+
     m_hostnameEdit = new QLineEdit(QStringLiteral("lingmo-pc"));
     m_hostnameEdit->setFixedHeight(36);
+    m_hostnameEdit->setMaxLength(63);
+    m_hostnameEdit->setPlaceholderText(tr("e.g. lingmo-pc"));
     m_hostnameEdit->setStyleSheet(
         "QLineEdit { border: 1px solid #D9DADD; border-radius: 10px; padding: 4px 10px; font-size: 14px; background: #FFFFFF; }"
-        "QLineEdit:focus { border-color: #3385FF; }");
+        "QLineEdit:focus { border-color: #3385FF; }"
+        "QLineEdit[invalid=\"true\"] { border-color: #D92D20; }");
+    // RFC 1123: labels are [a-zA-Z0-9] and '-', not starting/ending with '-'.
+    // Allow uppercase here; we lowercase at apply time.
+    m_hostnameEdit->setValidator(new QRegularExpressionValidator(
+        QRegularExpression("[a-zA-Z0-9][a-zA-Z0-9-]{0,62}"), m_hostnameEdit));
     l->addWidget(m_hostnameEdit);
+
+    m_hostnameError = new QLabel;
+    m_hostnameError->setStyleSheet("color: #D92D20; font-size: 12px; background: transparent;");
+    m_hostnameError->setVisible(false);
+    l->addWidget(m_hostnameError);
+
+    QLabel *hint = new QLabel(tr("Letters, digits and hyphens only. Cannot start or end with a hyphen."));
+    hint->setStyleSheet("font-size: 11px; color: #64646E; background: transparent;");
+    hint->setWordWrap(true);
+    l->addWidget(hint);
 
     l->addStretch();
     return page;
@@ -648,55 +706,79 @@ void OobeWindow::nextPage()
     if (idx == 1) {
         m_username = m_usernameEdit->text().trimmed();
         m_password = m_passwordEdit->text();
-        QString confirm = m_confirmPwdEdit->text();
+        const QString confirm = m_confirmPwdEdit->text();
 
-        // Validate username format: non-empty, lowercase, no spaces.
+        bool ok = true;
+
+        // Username: non-empty, format already enforced by QValidator, but
+        // re-check the full regex (validator allows intermediate states).
         static const QRegularExpression kValidName("^[a-z_][a-z0-9_-]{0,31}$");
-        if (m_username.isEmpty() || m_password.isEmpty()) {
-            m_usernameError->setText(tr("Username and password must not be empty."));
-            m_usernameError->setVisible(m_username.isEmpty());
-            return;
-        }
-        if (!kValidName.match(m_username).hasMatch()) {
-            m_usernameError->setText(tr("Username may only contain lowercase letters, digits, '-' or '_'."));
+        if (m_username.isEmpty()) {
+            m_usernameError->setText(tr("Username must not be empty."));
             m_usernameError->setVisible(true);
-            return;
-        }
-        // Reject a username that matches a system account (UID < 1000), which
-        // would make useradd fail. The live user (a normal account) is removed
-        // before useradd runs, so reusing its name is allowed.
-        bool taken = false;
-        QFile passwd("/etc/passwd");
-        if (passwd.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            while (!passwd.atEnd()) {
-                const QString line = QString::fromUtf8(passwd.readLine());
-                const QStringList fields = line.split(':');
-                if (fields.size() >= 3 && fields.at(0) == m_username) {
-                    bool ok = false;
-                    const int uid = fields.at(2).toInt(&ok);
-                    if (ok && uid < 1000) {
-                        taken = true;
-                        break;
+            ok = false;
+        } else if (!kValidName.match(m_username).hasMatch()) {
+            m_usernameError->setText(tr("Must start with a letter or '_', then lowercase letters, digits, '-' or '_'. Max 32 characters."));
+            m_usernameError->setVisible(true);
+            ok = false;
+        } else {
+            // Reject system account names (UID < 1000).
+            bool taken = false;
+            QFile passwd("/etc/passwd");
+            if (passwd.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                while (!passwd.atEnd()) {
+                    const QString line = QString::fromUtf8(passwd.readLine());
+                    const QStringList fields = line.split(':');
+                    if (fields.size() >= 3 && fields.at(0) == m_username) {
+                        bool uidOk = false;
+                        const int uid = fields.at(2).toInt(&uidOk);
+                        if (uidOk && uid < 1000) { taken = true; break; }
                     }
                 }
             }
+            if (taken) {
+                m_usernameError->setText(tr("\"%1\" is a reserved system name. Please choose another.").arg(m_username));
+                m_usernameError->setVisible(true);
+                ok = false;
+            } else {
+                m_usernameError->setVisible(false);
+            }
         }
-        if (taken) {
-            m_usernameError->setText(tr("The username \"%1\" is a reserved system name. Please choose another.").arg(m_username));
-            m_usernameError->setVisible(true);
-            return;
+
+        // Password: must not be empty.
+        if (m_password.isEmpty()) {
+            m_passwordError->setText(tr("Password must not be empty."));
+            m_passwordError->setVisible(true);
+            ok = false;
+        } else {
+            m_passwordError->setVisible(false);
         }
-        if (m_password != confirm) {
-            m_usernameError->setText(tr("Passwords do not match."));
-            m_usernameError->setVisible(true);
-            return;
+
+        // Confirm password: must match.
+        if (!m_password.isEmpty() && m_password != confirm) {
+            m_confirmError->setText(tr("Passwords do not match."));
+            m_confirmError->setVisible(true);
+            ok = false;
+        } else {
+            m_confirmError->setVisible(false);
         }
-        m_usernameError->setVisible(false);
+
+        if (!ok) return;
     }
 
     if (idx == 2) {
-        m_hostname = m_hostnameEdit->text().trimmed();
-        if (m_hostname.isEmpty()) m_hostname = "lingmo-pc";
+        m_hostname = m_hostnameEdit->text().trimmed().toLower();
+
+        // RFC 1123: 1–63 chars, [a-z0-9-], must not start or end with '-'.
+        static const QRegularExpression kValidHost("^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$");
+        if (m_hostname.isEmpty()) {
+            m_hostname = "lingmo-pc";
+        } else if (!kValidHost.match(m_hostname).hasMatch()) {
+            m_hostnameError->setText(tr("Letters, digits and hyphens only. Cannot start or end with a hyphen."));
+            m_hostnameError->setVisible(true);
+            return;
+        }
+        m_hostnameError->setVisible(false);
     }
 
     if (idx == m_stack->count() - 1) {
