@@ -1,3 +1,12 @@
+lingmo-oobe (1.6.9.lingmo.1) unstable; urgency=medium
+
+  * fix: unlock the autologin account in oobe.sh setup so that lingmo-dm
+    can authenticate it; the account copied from the live squashfs may
+    have a locked password because live-config only unlocks it at boot
+    via chpasswd, and that hook is never run on the installed system.
+
+ -- Lingmo OS Team <team@lingmo.org>  Wed, 04 Nov 2026 12:00:00 +0800
+
 lingmo-oobe (1.6.8.lingmo.1) unstable; urgency=medium
 
   * fix: delete the OOBE autologin account by reading /etc/lingmo-dm.conf

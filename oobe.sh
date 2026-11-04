@@ -20,6 +20,12 @@ case "${1:-run}" in
                 -s /bin/bash "${original_user}" 2>/dev/null || true
         fi
 
+        # The lingmo account copied from the live squashfs may have a locked
+        # password (live-config locks it and only unlocks it at boot via
+        # chpasswd; on the installed system that hook never runs).  Unlock it
+        # so lingmo-dm can authenticate the account for the OOBE session.
+        passwd -u "${original_user}" 2>/dev/null || true
+
         # lingmo-dm names a session by its desktop file name without suffix.
         cat > /etc/lingmo-dm.conf << EOF
 [Autologin]
