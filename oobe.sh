@@ -21,10 +21,13 @@ case "${1:-run}" in
         fi
 
         # The lingmo account copied from the live squashfs may have a locked
-        # password (live-config locks it and only unlocks it at boot via
-        # chpasswd; on the installed system that hook never runs).  Unlock it
-        # so lingmo-dm can authenticate the account for the OOBE session.
+        # password or stale shadow aging fields (live-config sets these at
+        # boot via chpasswd, but on the installed system that hook never runs).
+        # passwd -u removes the '!' prefix; chage resets the last-change date
+        # to today and clears the account-expiry date, so pam_acct_mgmt does
+        # not return PAM_NEW_AUTHTOK_REQD or PAM_ACCT_EXPIRED and refuse login.
         passwd -u "${original_user}" 2>/dev/null || true
+        chage -d "$(date +%Y-%m-%d)" -E -1 "${original_user}" 2>/dev/null || true
 
         # lingmo-dm names a session by its desktop file name without suffix.
         cat > /etc/lingmo-dm.conf << EOF

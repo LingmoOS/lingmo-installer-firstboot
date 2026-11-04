@@ -1,3 +1,13 @@
+lingmo-oobe (1.6.10.lingmo.1) unstable; urgency=medium
+
+  * fix: reset shadow aging fields with chage after passwd -u so that
+    pam_acct_mgmt does not return PAM_NEW_AUTHTOK_REQD or PAM_ACCT_EXPIRED
+    and refuse login.  The lingmo account's sp_lstchg may be 0 (meaning
+    "password expired at epoch") when copied from the live squashfs, causing
+    Sign-in failed even after the password is unlocked.
+
+ -- Lingmo OS Team <team@lingmo.org>  Wed, 04 Nov 2026 16:10:00 +0800
+
 lingmo-oobe (1.6.9.lingmo.1) unstable; urgency=medium
 
   * fix: unlock the autologin account in oobe.sh setup so that lingmo-dm
