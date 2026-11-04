@@ -1,3 +1,12 @@
+lingmo-oobe (1.6.8.lingmo.1) unstable; urgency=medium
+
+  * fix: delete the OOBE autologin account by reading /etc/lingmo-dm.conf
+    instead of hard-coding "live"; the installed system keeps the lingmo
+    account from the image, so userdel live never matched and lingmo was
+    never removed before the user's chosen account was created.
+
+ -- Lingmo OS Team <team@lingmo.org>  Wed, 04 Nov 2026 11:35:00 +0800
+
 lingmo-oobe (1.6.7.lingmo.1) unstable; urgency=medium
 
   * fix: finished page description now shows the correct username.

@@ -844,13 +844,12 @@ void OobeWindow::applySettings()
     QCoreApplication::processEvents();
 
     QStringList cmds;
-    // Remove the live user first so the chosen username is always available,
-    // even when it matches the live account name (e.g. "lingmo"). The window
-    // between deletion and creation is negligible; the OOBE-complete flag is
-    // written only after useradd succeeds, so an interruption here will re-
-    // enter OOBE on the next boot via the firstboot.service setup path, which
-    // recreates an autologin account if none exists.
-    cmds << "userdel -r live 2>/dev/null || true";
+    // Delete the autologin account that ran the OOBE session so the
+    // user-chosen name is always available, even if they pick "lingmo".
+    // We read it from /etc/lingmo-dm.conf rather than hard-coding "live",
+    // because the installed system keeps the lingmo account from the image.
+    cmds << "OOBE_USER=$(grep '^User=' /etc/lingmo-dm.conf 2>/dev/null | cut -d= -f2 | tr -d '[:space:]');"
+            " [ -n \"$OOBE_USER\" ] && userdel -r \"$OOBE_USER\" 2>/dev/null || true";
     cmds << QString("useradd -m -G sudo,audio,video,plugdev,netdev,bluetooth -s /bin/bash %1").arg(m_username);
     cmds << QString("echo '%1:%2' | chpasswd").arg(m_username, m_password);
     cmds << QString("hostnamectl set-hostname %1").arg(m_hostname);
