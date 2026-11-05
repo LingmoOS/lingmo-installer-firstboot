@@ -30,48 +30,8 @@ Click &quot;Next&quot; to continue.</source>
 请点击"下一步"继续。</translation>
     </message>
     <message>
-        <source>Create User</source>
-        <translation>创建用户</translation>
-    </message>
-    <message>
-        <source>Create a user account to log into the system.</source>
-        <translation>请创建一个用户帐户，用于登录系统。</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>用户名</translation>
-    </message>
-    <message>
-        <source>e.g. alice</source>
-        <translation>例如 alice</translation>
-    </message>
-    <message>
-        <source>Username must not be empty.</source>
-        <translation>用户名不能为空。</translation>
-    </message>
-    <message>
-        <source>Must start with a letter or &apos;_&apos;, then lowercase letters, digits, &apos;-&apos; or &apos;_&apos;. Max 32 characters.</source>
-        <translation>必须以字母或"_"开头，后续为小写字母、数字、"-"或"_"。最长 32 个字符。</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; is a reserved system name. Please choose another.</source>
-        <translation>"%1" 是系统保留名称，请选择其他用户名。</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>密码</translation>
-    </message>
-    <message>
-        <source>Password must not be empty.</source>
-        <translation>密码不能为空。</translation>
-    </message>
-    <message>
-        <source>Confirm Password</source>
-        <translation>确认密码</translation>
-    </message>
-    <message>
-        <source>Passwords do not match.</source>
-        <translation>两次输入的密码不一致。</translation>
+        <source>Let&apos;s set up a few things before you get started. This will only take a moment.</source>
+        <translation>在开始之前，我们先进行一些基本设置，只需要片刻时间。</translation>
     </message>
     <message>
         <source>Computer Name</source>
@@ -82,8 +42,16 @@ Click &quot;Next&quot; to continue.</source>
         <translation>为这台计算机取一个在网络上的名称。</translation>
     </message>
     <message>
+        <source>Give your computer a name. It will appear on the network and in file manager titles.</source>
+        <translation>为您的计算机取一个名称，它将显示在网络上和文件管理器标题中。</translation>
+    </message>
+    <message>
         <source>Hostname</source>
         <translation>主机名</translation>
+    </message>
+    <message>
+        <source>Computer name</source>
+        <translation>计算机名称</translation>
     </message>
     <message>
         <source>e.g. lingmo-pc</source>
@@ -94,20 +62,6 @@ Click &quot;Next&quot; to continue.</source>
         <translation>仅允许字母、数字和连字符。不能以连字符开头或结尾。</translation>
     </message>
     <message>
-        <source>Confirm Settings</source>
-        <translation>确认设置</translation>
-    </message>
-    <message>
-        <source>Username: %1
-Computer Name: %2</source>
-        <translation>用户名：%1
-计算机名：%2</translation>
-    </message>
-    <message>
-        <source>(not set)</source>
-        <translation>（未设置）</translation>
-    </message>
-    <message>
         <source>Applying Settings</source>
         <translation>正在应用设置</translation>
     </message>
@@ -116,16 +70,8 @@ Computer Name: %2</source>
         <translation>请稍候...</translation>
     </message>
     <message>
-        <source>Creating user...</source>
-        <translation>正在创建用户...</translation>
-    </message>
-    <message>
-        <source>Setting password...</source>
-        <translation>正在设置密码...</translation>
-    </message>
-    <message>
-        <source>Setting hostname...</source>
-        <translation>正在设置主机名...</translation>
+        <source>Setting computer name...</source>
+        <translation>正在设置计算机名称...</translation>
     </message>
     <message>
         <source>Configuring auto login...</source>
@@ -142,12 +88,10 @@ Computer Name: %2</source>
     <message>
         <source>Welcome to Lingmo OS!
 
-Your system is ready.
-After reboot, log in with &quot;%1&quot;.</source>
+Your system is ready. Click Reboot to start using it.</source>
         <translation>欢迎使用 Lingmo OS！
 
-您的系统已经准备就绪。
-重启后请使用"%1"登录。</translation>
+系统已准备就绪。点击重启开始使用。</translation>
     </message>
     <message>
         <source>Applying settings...</source>
