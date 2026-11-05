@@ -24,10 +24,8 @@ private:
     void fadeToPage(int index);
     QWidget* createCard();
     QWidget* createWelcomePage();
-    QWidget* createUserPage();
     QWidget* createHostnamePage();
-    QWidget* createConfirmPage();
-    QWidget* createInstallPage();
+    QWidget* createApplyingPage();
     QWidget* createFinishedPage();
     void updateNavButtons();
 
@@ -35,19 +33,11 @@ private:
     QPushButton *m_backBtn;
     QPushButton *m_nextBtn;
 
-    // User data
-    QString m_username;
-    QString m_password;
+    // Personalization data
     QString m_hostname;
 
     // Pages
-    QLineEdit *m_usernameEdit;
-    QLineEdit *m_passwordEdit;
-    QLineEdit *m_confirmPwdEdit;
     QLineEdit *m_hostnameEdit;
-    QLabel    *m_usernameError;
-    QLabel    *m_passwordError;
-    QLabel    *m_confirmError;
     QLabel    *m_hostnameError;
     QLabel    *m_finishDesc;
 

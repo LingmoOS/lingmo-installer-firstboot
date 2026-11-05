@@ -1,3 +1,20 @@
+lingmo-oobe (1.6.11.lingmo.1) unstable; urgency=medium
+
+  * oobe: remove user creation — OOBE is now personalization only.
+    The installer creates the user account; OOBE's responsibility is
+    limited to setting the computer name and switching the autologin
+    session from lingmo-oobe to lingmo-wayland on completion.
+  * OobeWindow: remove createUserPage(), createConfirmPage() and all
+    username/password fields and validation logic.
+  * OobeWindow: reduce page stack from 6 to 4: Welcome, Hostname,
+    Applying, Finished.
+  * applySettings(): no longer runs useradd/chpasswd; reads the
+    autologin user from /etc/lingmo-dm.conf written by the installer,
+    then switches Session= to lingmo-wayland.
+  * Update zh_CN translations to match new page structure.
+
+ -- Lingmo OS Team <team@lingmo.org>  Thu, 05 Nov 2026 10:00:00 +0800
+
 lingmo-oobe (1.6.10.lingmo.1) unstable; urgency=medium
 
   * fix: reset shadow aging fields with chage after passwd -u so that
