@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Lingmo OS OOBE
+Name[zh_CN]=Lingmo OS 首次启动设置
 Comment=First Boot Setup
+Comment[zh_CN]=首次启动配置向导
 Exec=/usr/lib/lingmo-oobe/oobe.sh
 TryExec=/usr/bin/lingmo-oobe
 Type=XSession

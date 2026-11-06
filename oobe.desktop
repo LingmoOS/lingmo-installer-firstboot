@@ -1,7 +1,9 @@
 [Desktop Entry]
 Type=Application
 Name=Lingmo OS First Boot Setup
+Name[zh_CN]=Lingmo OS 首次启动设置
 Comment=First boot configuration wizard
+Comment[zh_CN]=首次启动配置向导
 Exec=/usr/lib/lingmo-oobe/oobe.sh run
 Terminal=false
 Categories=System;
