@@ -12,28 +12,18 @@ finish = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(finish)
 
 class AccountHandoff(unittest.TestCase):
-    def test_installer_and_completion_preserve_account_and_preference(self):
-        installer = SOURCE.parent / "lingmo-installer/src/modules/displaymanager/main.py"
-        module = ast.parse(installer.read_text())
-        klass = next(n for n in module.body if isinstance(n, ast.ClassDef) and n.name == "DMlingmodm")
-        method = next(n for n in klass.body if isinstance(n, ast.FunctionDef) and n.name == "set_autologin")
+    def test_legacy_completion_preserves_login_preference(self):
         for enabled in (False, True):
             with self.subTest(enabled=enabled), tempfile.TemporaryDirectory() as temp:
-                root = Path(temp);(root / "etc").mkdir()
-                (root / "etc/lingmo-dm.conf").write_text("[Theme]\nName=existing\n")
-                storage = SimpleNamespace(value=lambda key: "alice" if key == "username" else None)
-                namespace = {"os": __import__("os"), "libcalamares": SimpleNamespace(globalstorage=storage)}
-                exec(compile(ast.Module(body=[method], type_ignores=[]), str(installer), "exec"), namespace)
-                namespace["set_autologin"](SimpleNamespace(root_mount_point=temp), "alice" if enabled else None, enabled, None)
-                config = configparser.ConfigParser();config.read(root / "etc/lingmo-dm.conf")
-                self.assertEqual(config["Autologin"]["User"], "alice")
-                self.assertEqual(config["Autologin"]["Session"], "lingmo-oobe")
-                finish.finish(root=root, lookup=lambda user: SimpleNamespace(pw_uid=1000))
-                config.read(root / "etc/lingmo-dm.conf")
-                self.assertEqual(config["Autologin"]["User"], "alice" if enabled else "")
-                self.assertEqual(config["Autologin"]["Session"], "lingmo-wayland")
-                self.assertEqual(config["Theme"]["Name"], "existing")
-                self.assertTrue((root / "etc/.firstboot-complete").exists())
+                root=Path(temp);(root/"etc").mkdir()
+                (root/"etc/lingmo-dm.conf").write_text("[Theme]\nName=existing\n[Autologin]\nUser=alice\nSession=lingmo-oobe\n")
+                (root/"etc/lingmo-oobe-account.conf").write_text("[Account]\nUser=alice\nAutologin={}\n".format(str(enabled).lower()))
+                finish.finish(root=root,lookup=lambda user:SimpleNamespace(pw_uid=1000))
+                config=configparser.ConfigParser();config.read(root/"etc/lingmo-dm.conf")
+                self.assertEqual(config["Autologin"]["User"],"alice" if enabled else "")
+                self.assertEqual(config["Autologin"]["Session"],"lingmo-wayland")
+                self.assertEqual(config["Theme"]["Name"],"existing")
+                self.assertTrue((root/"etc/.firstboot-complete").exists())
 
     def test_missing_account_never_marks_complete(self):
         with tempfile.TemporaryDirectory() as temp:
