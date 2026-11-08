@@ -643,62 +643,38 @@ void OobeWindow::applySettings()
     m_progressLabel->setText(tr("Applying settings..."));
     QCoreApplication::processEvents();
 
-    // Read the autologin user written by the installer into /etc/lingmo-dm.conf.
-    QString user;
-    {
-        QFile conf("/etc/lingmo-dm.conf");
-        if (conf.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            while (!conf.atEnd()) {
-                const QString line = QString::fromUtf8(conf.readLine()).trimmed();
-                if (line.startsWith(QStringLiteral("User="))) {
-                    user = line.mid(5).trimmed();
-                    break;
-                }
-            }
-        }
-    }
-    if (user.isEmpty())
-        user = QStringLiteral("lingmo"); // safety fallback
-
-    QStringList cmds;
-
-    if (!m_hostname.isEmpty())
-        cmds << QStringLiteral("hostnamectl set-hostname %1").arg(m_hostname);
-
-    // Switch from the OOBE session to the regular Lingmo Wayland desktop.
-    cmds << QStringLiteral("printf '[Autologin]\\nUser=%1\\nSession=lingmo-wayland\\n' > /etc/lingmo-dm.conf")
-               .arg(user);
-
-    // Mark OOBE complete so firstboot.service does not re-run.
-    cmds << QStringLiteral("touch %1").arg(QString::fromLatin1(OOBE_FLAG));
-
-    // Self-remove to reduce footprint.
-    cmds << QStringLiteral("apt-get remove -y lingmo-oobe 2>/dev/null || dpkg --purge lingmo-oobe 2>/dev/null || true");
-
-    QString executor;
+    QString program = QStringLiteral("/usr/bin/python3");
+    QStringList arguments{QStringLiteral("/usr/lib/lingmo-oobe/finish-setup.py"), m_hostname};
 #ifdef Q_OS_UNIX
-    if (getuid() != 0)
-        executor = QStringLiteral("pkexec");
-#else
-    executor = QStringLiteral("pkexec");
-#endif
-
-    bool ok = true;
-    for (const auto &cmd : cmds) {
-        const QString fullCmd = executor.isEmpty()
-            ? cmd
-            : QStringLiteral("%1 bash -c '%2'").arg(executor, cmd);
-        if (system(fullCmd.toUtf8().constData()) != 0) {
-            ok = false;
-            break;
-        }
-        QCoreApplication::processEvents();
+    if (getuid() != 0) {
+        arguments.prepend(program);
+        program = QStringLiteral("pkexec");
     }
-
-    m_progressLabel->setText(ok ? tr("Setup complete") : tr("Setup failed"));
-
-    QTimer::singleShot(500, this, [this]() {
-        m_stack->setCurrentIndex(m_stack->count() - 1);
-        updateNavButtons();
+#endif
+    // Pass arguments directly: usernames and hostnames never become shell code.
+    auto* process = new QProcess(this);
+    m_backBtn->setEnabled(false);
+    connect(process, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this,
+            [this, process](int code, QProcess::ExitStatus status) {
+        const bool ok = code == 0 && status == QProcess::NormalExit;
+        process->deleteLater();
+        m_backBtn->setEnabled(true);
+        m_progressLabel->setText(ok ? tr("Setup complete") : tr("Setup failed"));
+        if (ok) {
+            QTimer::singleShot(500, this, [this] {
+                m_stack->setCurrentIndex(m_stack->count() - 1);
+                updateNavButtons();
+            });
+        } else {
+            m_stack->setCurrentIndex(1);
+            m_hostnameError->setText(tr("Setup failed"));
+            updateNavButtons();
+        }
     });
+    connect(process, &QProcess::errorOccurred, this, [this, process](QProcess::ProcessError error) {
+        if (error != QProcess::FailedToStart) return;
+        process->deleteLater();m_backBtn->setEnabled(true);
+        m_stack->setCurrentIndex(1);m_hostnameError->setText(tr("Setup failed"));updateNavButtons();
+    });
+    process->start(program, arguments);
 }

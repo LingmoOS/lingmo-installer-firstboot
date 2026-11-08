@@ -1,3 +1,11 @@
+lingmo-oobe (1.6.11.lingmo.3) unstable; urgency=medium
+
+  * Reuse the installed account without creating or unlocking fallback users.
+  * Restore the chosen login policy and report setup failures correctly.
+  * Add account handoff regression tests and runtime Python dependency.
+
+ -- Lingmo OS Team <team@lingmo.org>  Sun, 08 Nov 2026 12:00:00 +0800
+
 lingmo-oobe (1.6.11.lingmo.2) unstable; urgency=medium
 
   * i18n: localize first boot desktop entries.

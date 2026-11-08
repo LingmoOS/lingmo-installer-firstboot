@@ -15,8 +15,8 @@ Architecture: any
 Depends:
  ${shlibs:Depends},
  ${misc:Depends},
- lingmo-dm
+ lingmo-dm,
+ python3
 Description: Lingmo OS first-boot OOBE wizard
- Runs on first boot after installation to create a user,
- set hostname, and configure lingmo-dm autologin. The account the
- installation created is kept.
+ Runs on first boot to personalize the hostname and finish setup using
+ the account created by the installer. Preserves the chosen login policy.
